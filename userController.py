@@ -20,10 +20,13 @@ class userController(webapp2.RequestHandler):
     
     def create(self):        
         #myEmail = ndb.Key("email","mmzepedab@gmail.com")
-        users = User.queryUser("oscar.espirilla@gmail.com", "669")
+        users = User.queryUser(self.request.get('email'), self.request.get('udid'))
         if users.count() > 0:
             for user in users:
-                user.udid = "667"
+                if user.is_logged == True:
+                    user.is_logged = False
+                else:
+                    user.is_logged = True                
                 user.put()
                 #self.response.out.write('<blockquote>%s</blockquote>' % user.udid)
             #self.response.out.write('Se ha actualizado %s registro(s)' % users.count())
@@ -37,6 +40,6 @@ class userController(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'   
         obj = {
                 'success': True, 
-                'payload': 'some var',
+                #'payload': 'some var',
                 } 
         self.response.out.write(json.dumps(obj))
