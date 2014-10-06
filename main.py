@@ -29,5 +29,9 @@ class MainHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
     webapp2.Route('/test', handler= 'notification_controller.NotificationController',  handler_method='test'),
-    webapp2.Route('/user/create', handler= 'userController.userController',  handler_method='create')
+    webapp2.Route('/user/create', handler= 'userController.userController',  handler_method='create'),
+    webapp2.Route('/user/login', handler= 'userController.userController',  handler_method='login'),
+    webapp2.Route('/user/logout', handler= 'userController.userController',  handler_method='logout'),
+    webapp2.Route('/notification/send', handler= 'notificationController.NotificationController',  handler_method='sendNotification'),
+    webapp2.Route('/user/changeLanguage', handler= 'userController.userController',  handler_method='changeLanguage')
 ], debug=True)
