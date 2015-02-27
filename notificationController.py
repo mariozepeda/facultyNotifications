@@ -43,7 +43,7 @@ class NotificationController(webapp2.RequestHandler):
                 payload = json.dumps(payload)
                 cert = 'ck.pem'
                 key = 'newFacultyKey.pem'
-                host = 'gateway.sandbox.push.apple.com';
+                host = 'gateway.push.apple.com';
                 host_ip = socket.gethostbyname( host )
     
                 try:
