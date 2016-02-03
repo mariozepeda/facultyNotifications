@@ -5,6 +5,7 @@ import json
 import socket
 import struct
 import binascii
+import urllib2
 
 from google.appengine.ext import ndb
 
@@ -24,6 +25,22 @@ class User(ndb.Model):
         #return 1
         return cls.query(cls.email == myEmail)
 
+class UserAndroid(ndb.Model):
+    email = ndb.StringProperty()
+    android_token = ndb.StringProperty()
+    is_logged = ndb.BooleanProperty()
+    language = ndb.StringProperty()
+    
+    @classmethod
+    def queryUser(cls, myEmail, myAndroidToken):
+        #return 1
+        return cls.query(cls.email == myEmail, cls.android_token == myAndroidToken)
+    
+    @classmethod
+    def queryUserByEmail(cls, myEmail):
+        #return 1
+        return cls.query(cls.email == myEmail)
+
 class NotificationController(webapp2.RequestHandler):
     
     def sendNotification(self):
@@ -31,6 +48,7 @@ class NotificationController(webapp2.RequestHandler):
         myType = self.request.get('type')
         myCourseName = self.request.get('courseName')
         users = User.queryUserByEmail(myEmail)
+        usersAndroid = UserAndroid.queryUserByEmail(myEmail)
         
         for user in users:               
             if user.is_logged == True:
@@ -65,6 +83,27 @@ class NotificationController(webapp2.RequestHandler):
                     
                 except Exception, e:
                     self.response.write("Wrong %s. Exception type is %s" % (apns_address, e))
+
+        for userAndroid in usersAndroid:
+            #self.response.out.write("Huh?") 
+            if userAndroid.is_logged == True:
+                #token = '658137ada8f7c16584353241e9a7dfd867b54940a3eda8b263a7a12882d99df0'
+                token = userAndroid.android_token
+                
+                notificationText = self.getNotificationText(myType,myCourseName,userAndroid.language)
+                
+                json_data = {"collapse_key" : "msg","data" : { "data": notificationText, }, "registration_ids": [token],}
+
+                url = 'https://android.googleapis.com/gcm/send'
+                myKey = "AIzaSyA3XNF4chKCR9s19pJaEttuLIQBoDNO150" 
+                data = json.dumps(json_data)
+                headers = {'Content-Type': 'application/json', 'Authorization': 'key=%s' % myKey}
+                req = urllib2.Request(url, data, headers)
+                f = urllib2.urlopen(req)
+                response = json.loads(f.read())
+
+                self.response.out.write(json.dumps(response,sort_keys=True, indent=2) )                
+            
                 
     def userIsLoggedIn(self, myEmail):
         return True
